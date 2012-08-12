@@ -5,14 +5,14 @@ adapter that should work just like reference ring adapter.
 
 ## Usage
 
-(use 'netty.ring.adapter)
+`(use 'netty.ring.adapter)
 
 (defn handler [req]
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body "Hello world from Netty})
+   :body "Hello world from Netty"})
 
-(start-server handler {:port 8080})
+(start-server handler {:port 8080})`
 
 ## License
 
