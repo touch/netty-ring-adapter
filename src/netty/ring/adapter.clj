@@ -12,9 +12,10 @@
             DefaultHttpResponse
             HttpResponseStatus
             HttpVersion
-            HttpHeaders]))
+            HttpHeaders
+            HttpResponse]))
 
-(defn- create-ring-request [http-request]
+(defn- create-ring-request [^HttpResponse http-request]
   (let [body (ChannelBufferInputStream. (.getContent http-request))]
     {:body body}))
 
