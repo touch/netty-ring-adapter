@@ -1,5 +1,6 @@
 (ns netty.ring.adapter
-  (:require [clojure.string :as s])
+  (:require [clojure.string :as s]
+            [netty.ring.request :as request])
   (:import [java.util.concurrent Executors]
            [java.net InetSocketAddress]
            org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
@@ -15,11 +16,13 @@
             HttpVersion
             HttpHeaders
             HttpResponse
-            HttpRequest]))
+            HttpRequest
+            HttpMethod]))
+
 
 (defn- create-ring-request [^HttpRequest http-request]
   (let [body (ChannelBufferInputStream. (.getContent http-request))
-        method (-> http-request (.getMethod) (.getName) (s/lower-case) (keyword))]
+        method (request/method (.getMethod http-request))]
     {:body body
      :uri (.getUri http-request)
      :request-method method}))
