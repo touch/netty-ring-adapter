@@ -24,15 +24,6 @@
             HttpRequest
             HttpMethod]))
 
-
-(defn- create-ring-request [^ChannelHandlerContext context ^HttpRequest http-request]
-  (let [[uri query] (request/url (.getUri http-request))]
-    {:body (ChannelBufferInputStream. (.getContent http-request))
-     :uri uri
-     :query-string query
-     :request-method (request/method (.getMethod http-request))
-     :server-name (request/server-name context http-request)}))
-
 (defn- write-response [context response]
   (let [channel (.getChannel context)]
     (doto (.write channel response)
@@ -50,7 +41,7 @@
 (defn- create-handler [handler]
   (proxy [SimpleChannelUpstreamHandler] []
     (messageReceived [context event]
-      (let [ring-request (create-ring-request context (.getMessage event))
+      (let [ring-request (request/create-ring-request context (.getMessage event))
             ring-response (handler ring-request)]
         (when ring-response
           (write-ring-response context ring-response))))

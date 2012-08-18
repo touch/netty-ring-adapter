@@ -1,6 +1,7 @@
 (ns netty.ring.request
   (:require [clojure.string :as s])
-  (:import [org.jboss.netty.channel ChannelHandlerContext]
+  (:import [org.jboss.netty.buffer ChannelBufferInputStream]
+           [org.jboss.netty.channel ChannelHandlerContext]
            [org.jboss.netty.handler.codec.http HttpMethod HttpRequest HttpHeaders$Names]))
 
 (def method-mapping
@@ -29,10 +30,20 @@
     (aget (.split host ":") 0)))
 
 (defn local-address [^ChannelHandlerContext context]
-  (-> context .getChannel .getLocalAddress .getHostName))
+  (-> context .getChannel .getLocalAddress))
 
 (defn server-name [^ChannelHandlerContext ctx ^HttpRequest request]
   (if-let [host (hostname request)]
     host
-    (local-address ctx)))
+    (.getHostName (local-address ctx))))
+
+(defn create-ring-request [^ChannelHandlerContext context ^HttpRequest http-request]
+  (let [[uri query] (url (.getUri http-request))]
+    {:body (ChannelBufferInputStream. (.getContent http-request))
+     :uri uri
+     :query-string query
+     :request-method (method (.getMethod http-request))
+     :server-name (server-name context http-request)
+     :server-port (.getPort (local-address context))}))
+
 

@@ -27,12 +27,16 @@
 (deftest server-name
   (is (= (get "/serverName") "localhost")))
 
+(deftest server-port
+  (is (= (get "/port") "8080")))
+
 (defroutes test-routes
   (GET "/" [] "Hello World")
   (ANY "/method" [] #(name (:request-method %)))
   (GET "/uri/*" [] #(:uri %))
   (GET "/query" [] #(:query-string %))
   (GET "/serverName" [] #(:server-name %))
+  (GET "/port" [] #(str (:server-port %)))
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]
