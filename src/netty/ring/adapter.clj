@@ -23,7 +23,7 @@
 (defn- create-ring-request [^HttpRequest http-request]
   (let [body (ChannelBufferInputStream. (.getContent http-request))
         method (request/method (.getMethod http-request))
-        [uri query] (request/url http-request)]
+        [uri query] (request/url (.getUri http-request))]
     {:body body
      :uri uri
      :query-string query
