@@ -22,9 +22,11 @@
 
 (defn- create-ring-request [^HttpRequest http-request]
   (let [body (ChannelBufferInputStream. (.getContent http-request))
-        method (request/method (.getMethod http-request))]
+        method (request/method (.getMethod http-request))
+        [uri query] (request/url http-request)]
     {:body body
-     :uri (.getUri http-request)
+     :uri uri
+     :query-string query
      :request-method method}))
 
 (defn- write-response [context response]

@@ -1,6 +1,6 @@
 (ns netty.ring.request
   (:require [clojure.string :as s])
-  (:import [org.jboss.netty.handler.codec.http HttpMethod]))
+  (:import [org.jboss.netty.handler.codec.http HttpMethod HttpRequest]))
 
 (def method-mapping
   { HttpMethod/GET :get
@@ -17,4 +17,10 @@
   (if-let [method-keyword (method-mapping method)]
     method-keyword
     (-> method (.getName) (s/lower-case) (keyword))))
+
+(defn url [^HttpRequest request]
+  (let [regex #"([^?]+)[?]?([^?]+)?"
+        request-uri (.getUri request)
+        [match uri query] (re-find regex request-uri)]
+    [uri query]))
 

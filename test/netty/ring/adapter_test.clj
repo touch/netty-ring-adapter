@@ -8,8 +8,14 @@
 (deftest simple
   (is (= (:body (client/get "http://localhost:8080/")) "Hello World")))
 
+(deftest request-method
+  (is (= (:body (client/get "http://localhost:8080/method")) "get"))
+  (is (= (:body (client/post "http://localhost:8080/method")) "post"))
+  (is (= (:body (client/put "http://localhost:8080/method")) "put")))
+
 (defroutes tests
   (GET "/" [] "Hello World")
+  (ANY "/method" [] #(name (:request-method %)))
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]
