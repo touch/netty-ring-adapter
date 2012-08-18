@@ -6,7 +6,12 @@
            org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
            [org.jboss.netty.bootstrap ServerBootstrap]
            [org.jboss.netty.buffer ChannelBufferInputStream ChannelBuffers ChannelBufferOutputStream]
-           [org.jboss.netty.channel Channels SimpleChannelUpstreamHandler ChannelFutureListener ChannelPipelineFactory]
+           [org.jboss.netty.channel
+            ChannelHandlerContext
+            Channels
+            SimpleChannelUpstreamHandler
+            ChannelFutureListener
+            ChannelPipelineFactory]
            [org.jboss.netty.handler.codec.http
             HttpRequestDecoder
             HttpResponseEncoder
@@ -20,14 +25,13 @@
             HttpMethod]))
 
 
-(defn- create-ring-request [^HttpRequest http-request]
-  (let [body (ChannelBufferInputStream. (.getContent http-request))
-        method (request/method (.getMethod http-request))
-        [uri query] (request/url (.getUri http-request))]
-    {:body body
+(defn- create-ring-request [^ChannelHandlerContext context ^HttpRequest http-request]
+  (let [[uri query] (request/url (.getUri http-request))]
+    {:body (ChannelBufferInputStream. (.getContent http-request))
      :uri uri
      :query-string query
-     :request-method method}))
+     :request-method (request/method (.getMethod http-request))
+     :server-name (request/server-name context http-request)}))
 
 (defn- write-response [context response]
   (let [channel (.getChannel context)]
@@ -46,7 +50,7 @@
 (defn- create-handler [handler]
   (proxy [SimpleChannelUpstreamHandler] []
     (messageReceived [context event]
-      (let [ring-request (create-ring-request (.getMessage event))
+      (let [ring-request (create-ring-request context (.getMessage event))
             ring-response (handler ring-request)]
         (when ring-response
           (write-ring-response context ring-response))))

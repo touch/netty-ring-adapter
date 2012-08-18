@@ -24,11 +24,15 @@
   (is (= (get "/query?you=me") "you=me"))
   (is (= (get "/query?me=you&you=I") "me=you&you=I")))
 
+(deftest server-name
+  (is (= (get "/serverName") "localhost")))
+
 (defroutes test-routes
   (GET "/" [] "Hello World")
   (ANY "/method" [] #(name (:request-method %)))
   (GET "/uri/*" [] #(:uri %))
   (GET "/query" [] #(:query-string %))
+  (GET "/serverName" [] #(:server-name %))
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]
