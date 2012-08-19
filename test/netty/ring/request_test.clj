@@ -3,7 +3,7 @@
   (:require [netty.ring.request :as request])
   (:import [org.jboss.netty.handler.codec.http HttpMethod DefaultHttpRequest HttpVersion HttpMethod HttpHeaders HttpHeaders$Names]))
 
-(declare netty-request add-header add-host-header add-content-length add-content-type)
+(declare netty-request add-header add-host-header add-content-length add-content-type add-character-encoding)
 
 (deftest method
   (is (= :put (request/method HttpMethod/PUT)))
@@ -34,10 +34,17 @@
   (is (= "application/json" (request/content-type (doto (netty-request) (add-content-type "application/json")))))
   (is (= "multipart/mixed" (request/content-type (doto (netty-request) (add-content-type "multipart/mixed; boundary=frontier"))))))
 
+(deftest character-encoding
+  (is (nil? (request/character-encoding (netty-request))))
+  (is (= "utf8" (request/character-encoding (doto (netty-request) (add-character-encoding "utf8"))))))
+
 (defn netty-request
   ([] (netty-request "/default"))
   ([uri] (netty-request HttpMethod/GET uri))
   ([method uri] (DefaultHttpRequest. HttpVersion/HTTP_1_1 method uri)))
+
+(defn add-character-encoding [request encoding]
+  (add-header request HttpHeaders$Names/CONTENT_ENCODING encoding))
 
 (defn add-content-type [request content-type]
   (add-header request HttpHeaders$Names/CONTENT_TYPE content-type))

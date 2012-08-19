@@ -60,6 +60,9 @@
   (let [length (HttpHeaders/getContentLength request)]
     (when (> length 0) length)))
 
+(defn character-encoding [^HttpRequest request]
+  (HttpHeaders/getHeader request HttpHeaders$Names/CONTENT_ENCODING))
+
 (defn create-ring-request [^ChannelHandlerContext context ^HttpRequest http-request]
   (let [[uri query] (url (.getUri http-request))]
     {:body (ChannelBufferInputStream. (.getContent http-request))
@@ -71,6 +74,7 @@
      :remote-addr (remote-address context)
      :scheme (scheme http-request)
      :content-type (content-type http-request)
-     :content-length (content-length http-request)}))
+     :content-length (content-length http-request)
+     :character-encoding (character-encoding http-request)}))
 
 
