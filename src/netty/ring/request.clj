@@ -2,7 +2,7 @@
   (:require [clojure.string :as s])
   (:import [org.jboss.netty.buffer ChannelBufferInputStream]
            [org.jboss.netty.channel ChannelHandlerContext]
-           [org.jboss.netty.handler.codec.http HttpMethod HttpRequest HttpHeaders$Names]))
+           [org.jboss.netty.handler.codec.http HttpMethod HttpRequest HttpHeaders HttpHeaders$Names]))
 
 (def method-mapping
   {HttpMethod/GET :get
@@ -44,6 +44,10 @@
     .getAddress
     .getHostAddress))
 
+(defn scheme [^HttpRequest request]
+  (let [scheme (HttpHeaders/getHeader request "X-Scheme" "http")]
+    (keyword scheme)))
+
 (defn create-ring-request [^ChannelHandlerContext context ^HttpRequest http-request]
   (let [[uri query] (url (.getUri http-request))]
     {:body (ChannelBufferInputStream. (.getContent http-request))
@@ -52,6 +56,7 @@
      :request-method (method (.getMethod http-request))
      :server-name (server-name context http-request)
      :server-port (.getPort (local-address context))
-     :remote-addr (remote-address context)}))
+     :remote-addr (remote-address context)
+     :scheme (scheme http-request)}))
 
 

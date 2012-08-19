@@ -33,6 +33,9 @@
 (deftest remote-address
   (is (= (get "/remoteAddress") "127.0.0.1")))
 
+(deftest scheme
+  (is (= (get "/scheme") "http")))
+
 (defroutes test-routes
   (GET "/" [] "Hello World")
   (ANY "/method" [] #(name (:request-method %)))
@@ -41,6 +44,7 @@
   (GET "/serverName" [] #(:server-name %))
   (GET "/port" [] #(str (:server-port %)))
   (GET "/remoteAddress" [] #(:remote-addr %))
+  (GET "/scheme" [] #(name (:scheme %)))
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]
