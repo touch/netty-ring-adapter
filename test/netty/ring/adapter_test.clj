@@ -30,6 +30,9 @@
 (deftest server-port
   (is (= (get "/port") "8080")))
 
+(deftest remote-address
+  (is (= (get "/remoteAddress") "127.0.0.1")))
+
 (defroutes test-routes
   (GET "/" [] "Hello World")
   (ANY "/method" [] #(name (:request-method %)))
@@ -37,6 +40,7 @@
   (GET "/query" [] #(:query-string %))
   (GET "/serverName" [] #(:server-name %))
   (GET "/port" [] #(str (:server-port %)))
+  (GET "/remoteAddress" [] #(:remote-addr %))
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]

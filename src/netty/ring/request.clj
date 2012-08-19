@@ -32,10 +32,17 @@
 (defn local-address [^ChannelHandlerContext context]
   (-> context .getChannel .getLocalAddress))
 
-(defn server-name [^ChannelHandlerContext ctx ^HttpRequest request]
+(defn server-name [^ChannelHandlerContext context ^HttpRequest request]
   (if-let [host (hostname request)]
     host
-    (.getHostName (local-address ctx))))
+    (.getHostName (local-address context))))
+
+(defn remote-address [^ChannelHandlerContext context]
+  (-> context
+    .getChannel
+    .getRemoteAddress
+    .getAddress
+    .getHostAddress))
 
 (defn create-ring-request [^ChannelHandlerContext context ^HttpRequest http-request]
   (let [[uri query] (url (.getUri http-request))]
@@ -44,6 +51,7 @@
      :query-string query
      :request-method (method (.getMethod http-request))
      :server-name (server-name context http-request)
-     :server-port (.getPort (local-address context))}))
+     :server-port (.getPort (local-address context))
+     :remote-addr (remote-address context)}))
 
 
