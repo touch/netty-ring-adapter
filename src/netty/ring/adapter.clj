@@ -1,42 +1,20 @@
 (ns netty.ring.adapter
   (:require [clojure.string :as s]
-            [netty.ring.request :as request])
+            [netty.ring.request :as request]
+            [netty.ring.response :as response])
   (:import [java.util.concurrent Executors]
            [java.net InetSocketAddress]
            org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
            [org.jboss.netty.bootstrap ServerBootstrap]
-           [org.jboss.netty.buffer ChannelBufferInputStream ChannelBuffers ChannelBufferOutputStream]
            [org.jboss.netty.channel
             ChannelHandlerContext
             Channels
             SimpleChannelUpstreamHandler
-            ChannelFutureListener
             ChannelPipelineFactory]
            [org.jboss.netty.handler.codec.http
             HttpRequestDecoder
             HttpResponseEncoder
-            HttpChunkAggregator
-            DefaultHttpResponse
-            HttpResponseStatus
-            HttpVersion
-            HttpHeaders
-            HttpResponse
-            HttpRequest
-            HttpMethod]))
-
-(defn- write-response [context response]
-  (let [channel (.getChannel context)]
-    (doto (.write channel response)
-      (.addListener ChannelFutureListener/CLOSE))))
-
-(defn- write-ring-response [context ring-response]
-  (let [status (HttpResponseStatus/valueOf (ring-response :status 200))
-        response (DefaultHttpResponse. HttpVersion/HTTP_1_1 status)
-        buffer (ChannelBuffers/dynamicBuffer 100)
-        output (ChannelBufferOutputStream. buffer)]
-    (.writeBytes output (:body ring-response))
-    (.setContent response buffer)
-    (write-response context response)))
+            HttpChunkAggregator]))
 
 (defn- create-handler [handler]
   (proxy [SimpleChannelUpstreamHandler] []
@@ -44,8 +22,8 @@
       (let [ring-request (request/create-ring-request context (.getMessage event))
             ring-response (handler ring-request)]
         (when ring-response
-          (write-ring-response context ring-response))))
-    (exceptionCaught [ctx evt]
+          (response/write-ring-response context ring-response))))
+    (exceptionCaught [context evt]
       (-> evt .getChannel .close))))
 
 (defn- create-pipeline [handler]
