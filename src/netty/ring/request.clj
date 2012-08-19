@@ -26,8 +26,8 @@
     [uri query]))
 
 (defn hostname [^HttpRequest request]
-  (when-let [host (.getHeader request HttpHeaders$Names/HOST)]
-    (aget (.split host ":") 0)))
+  (when-let [host (HttpHeaders/getHost request)]
+    (get (s/split host #":") 0)))
 
 (defn local-address [^ChannelHandlerContext context]
   (-> context .getChannel .getLocalAddress))
@@ -48,6 +48,14 @@
   (let [scheme (HttpHeaders/getHeader request "X-Scheme" "http")]
     (keyword scheme)))
 
+(defn content-type [^HttpRequest request]
+  (if-let [type (HttpHeaders/getHeader request HttpHeaders$Names/CONTENT_TYPE)]
+    (-> type
+      (s/split #";")
+      (get 0)
+      s/trim
+      s/lower-case)))
+
 (defn create-ring-request [^ChannelHandlerContext context ^HttpRequest http-request]
   (let [[uri query] (url (.getUri http-request))]
     {:body (ChannelBufferInputStream. (.getContent http-request))
@@ -57,6 +65,7 @@
      :server-name (server-name context http-request)
      :server-port (.getPort (local-address context))
      :remote-addr (remote-address context)
-     :scheme (scheme http-request)}))
+     :scheme (scheme http-request)
+     :content-type (content-type http-request)}))
 
 

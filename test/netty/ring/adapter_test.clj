@@ -6,7 +6,7 @@
   (:require [clj-http.client :as client]
             [compojure.route :as route]))
 
-(declare get post put)
+(declare get post put make-request)
 
 (deftest simple
   (is (= (get "/") "Hello World")))
@@ -34,7 +34,12 @@
   (is (= (get "/remoteAddress") "127.0.0.1")))
 
 (deftest scheme
-  (is (= (get "/scheme") "http")))
+  (is (= (get "/scheme") "http"))
+  (is (= (make-request :get "/scheme" {:headers {"X-Scheme" "https"}}) "https")))
+
+(deftest content-type
+  (is (= (make-request :get "/contentType" {:content-type :json}) "application/json"))
+  (is (= (make-request :get "/contentType" {:content-type :html}) "application/html")))
 
 (defroutes test-routes
   (GET "/" [] "Hello World")
@@ -45,6 +50,7 @@
   (GET "/port" [] #(str (:server-port %)))
   (GET "/remoteAddress" [] #(:remote-addr %))
   (GET "/scheme" [] #(name (:scheme %)))
+  (GET "/contentType" [] #(:content-type %))
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]
@@ -55,6 +61,9 @@
 (use-fixtures :each server-fixture)
 
 (def ^:const server "http://localhost:8080")
+
+(defn make-request [method path options]
+  (:body (client/request (merge {:method method :url (str server path)} options))))
 
 (defn request [f]
   #(:body (f (str server %))))
