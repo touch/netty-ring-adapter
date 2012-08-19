@@ -6,6 +6,7 @@
   (:require [clj-http.client :as client]
             [compojure.route :as route]))
 
+(def ^:const server "http://localhost:8080")
 (declare get post put make-request)
 
 (deftest simple
@@ -41,6 +42,12 @@
   (is (= (make-request :get "/contentType" {:content-type :json}) "application/json"))
   (is (= (make-request :get "/contentType" {:content-type :html}) "application/html")))
 
+(deftest chracter-encoding
+  (is (= (:body (client/post (str server "/characterEncoding") {:headers {"Content-Encoding" "UTF-8"}}) "UTF-8"))))
+
+(deftest headers
+  (is (= (get "/headers") "localhost:8080")))
+
 (defroutes test-routes
   (GET "/" [] "Hello World")
   (ANY "/method" [] #(name (:request-method %)))
@@ -51,6 +58,8 @@
   (GET "/remoteAddress" [] #(:remote-addr %))
   (GET "/scheme" [] #(name (:scheme %)))
   (GET "/contentType" [] #(:content-type %))
+  (POST "/characterEncoding" [] #(:character-encoding %))
+  (GET "/headers" [] #((:headers %) "host"))
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]
@@ -59,8 +68,6 @@
     (shutdown)))
 
 (use-fixtures :each server-fixture)
-
-(def ^:const server "http://localhost:8080")
 
 (defn make-request [method path options]
   (:body (client/request (merge {:method method :url (str server path)} options))))

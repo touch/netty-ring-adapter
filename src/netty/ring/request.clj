@@ -63,6 +63,12 @@
 (defn character-encoding [^HttpRequest request]
   (HttpHeaders/getHeader request HttpHeaders$Names/CONTENT_ENCODING))
 
+(defn headers [^HttpRequest req]
+  (let [headers (.getHeaders req)
+        keys (map (comp s/lower-case key) headers)
+        vals (map val headers)]
+    (zipmap keys vals)))
+
 (defn create-ring-request [^ChannelHandlerContext context ^HttpRequest http-request]
   (let [[uri query] (url (.getUri http-request))]
     {:body (ChannelBufferInputStream. (.getContent http-request))
@@ -75,6 +81,7 @@
      :scheme (scheme http-request)
      :content-type (content-type http-request)
      :content-length (content-length http-request)
-     :character-encoding (character-encoding http-request)}))
+     :character-encoding (character-encoding http-request)
+     :headers (headers http-request)}))
 
 

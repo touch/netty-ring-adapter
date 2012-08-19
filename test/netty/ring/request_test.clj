@@ -38,6 +38,10 @@
   (is (nil? (request/character-encoding (netty-request))))
   (is (= "utf8" (request/character-encoding (doto (netty-request) (add-character-encoding "utf8"))))))
 
+(deftest headers
+  (is (empty? (request/headers (netty-request))))
+  (is (= {"host" "localhost:8080"} (request/headers (doto (netty-request) (add-host-header "localhost:8080"))))))
+
 (defn netty-request
   ([] (netty-request "/default"))
   ([uri] (netty-request HttpMethod/GET uri))
