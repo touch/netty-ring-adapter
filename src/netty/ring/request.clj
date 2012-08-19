@@ -56,6 +56,10 @@
       s/trim
       s/lower-case)))
 
+(defn content-length [^HttpRequest request]
+  (let [length (HttpHeaders/getContentLength request)]
+    (when (> length 0) length)))
+
 (defn create-ring-request [^ChannelHandlerContext context ^HttpRequest http-request]
   (let [[uri query] (url (.getUri http-request))]
     {:body (ChannelBufferInputStream. (.getContent http-request))
@@ -66,6 +70,7 @@
      :server-port (.getPort (local-address context))
      :remote-addr (remote-address context)
      :scheme (scheme http-request)
-     :content-type (content-type http-request)}))
+     :content-type (content-type http-request)
+     :content-length (content-length http-request)}))
 
 
