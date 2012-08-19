@@ -48,6 +48,15 @@
 (deftest headers
   (is (= (get "/headers") "localhost:8080")))
 
+(deftest response-headers
+  (is (= (:headers (client/get (str server "/responseHeaders/single")) {"foo" "bar"})))
+  (is (= (:headers (client/get (str server "/responseHeaders/multiple"))) {"foo" ["bar" "baz"]})))
+
+(defn header-handler [request]
+  (if (.contains (:uri request) "single")
+    {:status 200 :headers {"foo" "bar"}}
+    {:status 200 :headers {"foo" ["bar" "baz"]}}))
+
 (defroutes test-routes
   (GET "/" [] "Hello World")
   (ANY "/method" [] #(name (:request-method %)))
@@ -60,6 +69,7 @@
   (GET "/contentType" [] #(:content-type %))
   (POST "/characterEncoding" [] #(:character-encoding %))
   (GET "/headers" [] #((:headers %) "host"))
+  (GET "/responseHeaders/*" [] header-handler)
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]

@@ -10,6 +10,10 @@
             ChannelHandlerContext
             ChannelFutureListener]))
 
+(defn set-headers [^HttpResponse response headers]
+  (doseq [[key values] headers]
+    (.setHeader response key values)))
+
 (defn- write-response [^ChannelHandlerContext context ^HttpResponse response]
   (let [channel (.getChannel context)]
     (doto (.write channel response)
@@ -20,6 +24,7 @@
         response (DefaultHttpResponse. HttpVersion/HTTP_1_1 status)
         buffer (ChannelBuffers/dynamicBuffer 100)
         output (ChannelBufferOutputStream. buffer)]
+    (set-headers response (:headers ring-response))
     (.writeBytes output (:body ring-response))
     (.setContent response buffer)
     (write-response context response)))
