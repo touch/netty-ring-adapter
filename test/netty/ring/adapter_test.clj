@@ -52,6 +52,9 @@
   (is (= (:headers (client/get (str server "/responseHeaders/single")) {"foo" "bar"})))
   (is (= (:headers (client/get (str server "/responseHeaders/multiple"))) {"foo" ["bar" "baz"]})))
 
+(deftest response-body-types
+  (is (= "agoodresponse" (get "/ISeqResponse"))))
+
 (defn header-handler [request]
   (if (.contains (:uri request) "single")
     {:status 200 :headers {"foo" "bar"}}
@@ -70,6 +73,7 @@
   (POST "/characterEncoding" [] #(:character-encoding %))
   (GET "/headers" [] #((:headers %) "host"))
   (GET "/responseHeaders/*" [] header-handler)
+  (GET "/ISeqResponse" [] {:status 200 :body '("a" "good" "response")})
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]

@@ -1,11 +1,11 @@
 (ns netty.ring.response
+  (:require [netty.ring.buffers :as b])
   (:import [org.jboss.netty.handler.codec.http
             HttpResponseStatus
             HttpVersion
             HttpHeaders
             HttpResponse
             DefaultHttpResponse]
-           [org.jboss.netty.buffer ChannelBuffers ChannelBufferOutputStream]
            [org.jboss.netty.channel
             ChannelHandlerContext
             ChannelFutureListener]))
@@ -22,9 +22,7 @@
 (defn write-ring-response [^ChannelHandlerContext context ring-response]
   (let [status (HttpResponseStatus/valueOf (ring-response :status 200))
         response (DefaultHttpResponse. HttpVersion/HTTP_1_1 status)
-        buffer (ChannelBuffers/dynamicBuffer 100)
-        output (ChannelBufferOutputStream. buffer)]
+        buffer (b/to-buffer (:body ring-response))]
     (set-headers response (:headers ring-response))
-    (.writeBytes output (:body ring-response))
     (.setContent response buffer)
     (write-response context response)))
