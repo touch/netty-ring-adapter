@@ -6,6 +6,7 @@
            [java.net InetSocketAddress]
            org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
            [org.jboss.netty.bootstrap ServerBootstrap]
+           [org.jboss.netty.handler.stream ChunkedWriteHandler]
            [org.jboss.netty.channel
             ChannelHandlerContext
             Channels
@@ -29,8 +30,9 @@
 (defn- create-pipeline [handler]
   (doto (Channels/pipeline)
     (.addLast "decoder" (HttpRequestDecoder.))
-    (.addLast "chunked" (HttpChunkAggregator. 1048576))
+    (.addLast "chunkedAggregator" (HttpChunkAggregator. 1048576))
     (.addLast "encoder" (HttpResponseEncoder.))
+    (.addLast "chunkedWriter" (ChunkedWriteHandler.))
     (.addLast "handler" (create-handler handler))))
 
 (defn- pipeline-factory [handler]
