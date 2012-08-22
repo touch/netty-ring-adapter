@@ -4,7 +4,8 @@
         netty.ring.adapter
         compojure.core)
   (:require [clj-http.client :as client]
-            [compojure.route :as route]))
+            [compojure.route :as route]
+            [clojure.java.io :as io]))
 
 (def ^:const server "http://localhost:8080")
 (declare get post put make-request)
@@ -53,7 +54,8 @@
   (is (= (:headers (client/get (str server "/responseHeaders/multiple"))) {"foo" ["bar" "baz"]})))
 
 (deftest response-body-types
-  (is (= "agoodresponse" (get "/ISeqResponse"))))
+  (is (= "agoodresponse" (get "/ISeqResponse")))
+  (is (= "afineresponse" (get "/InputStreamResponse"))))
 
 (defn header-handler [request]
   (if (.contains (:uri request) "single")
@@ -74,6 +76,7 @@
   (GET "/headers" [] #((:headers %) "host"))
   (GET "/responseHeaders/*" [] header-handler)
   (GET "/ISeqResponse" [] {:status 200 :body '("a" "good" "response")})
+  (GET "/InputStreamResponse" [] {:status 200 :body (io/input-stream (.getBytes "afineresponse"))})
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]
