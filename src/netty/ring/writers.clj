@@ -4,7 +4,7 @@
            [org.jboss.netty.channel Channel ChannelFutureListener ChannelFuture]
            [org.jboss.netty.handler.codec.http HttpResponse]
            [org.jboss.netty.handler.stream ChunkedStream]
-           [java.io InputStream]
+           [java.io InputStream File]
            [java.nio.charset Charset]
            [clojure.lang ISeq]))
 

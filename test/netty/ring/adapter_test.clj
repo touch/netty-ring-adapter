@@ -55,7 +55,13 @@
 
 (deftest response-body-types
   (is (= "agoodresponse" (get "/ISeqResponse")))
-  (is (= "afineresponse" (get "/InputStreamResponse"))))
+  (is (= "afineresponse" (get "/InputStreamResponse")))
+  (println "file body")
+  (println "zero copy file body"))
+
+(deftest bad-responses
+  (println "empty response")
+  (println "exception thrown during handle"))
 
 (defn header-handler [request]
   (if (.contains (:uri request) "single")

@@ -20,10 +20,9 @@
 (defn- create-handler [handler]
   (proxy [SimpleChannelUpstreamHandler] []
     (messageReceived [context event]
-      (let [ring-request (request/create-ring-request context (.getMessage event))
-            ring-response (handler ring-request)]
-        (when ring-response
-          (response/write-ring-response context ring-response))))
+      (-> (request/create-ring-request context (.getMessage event))
+        handler
+        (response/write-ring-response context)))
     (exceptionCaught [context evt]
       (-> evt .getChannel .close))))
 
