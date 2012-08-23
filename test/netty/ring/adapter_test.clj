@@ -56,7 +56,7 @@
 (deftest response-body-types
   (is (= "agoodresponse" (get "/ISeqResponse")))
   (is (= "afineresponse" (get "/InputStreamResponse")))
-  (println "file body")
+  (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse")))
   (println "zero copy file body"))
 
 (deftest bad-responses
@@ -83,6 +83,7 @@
   (GET "/responseHeaders/*" [] header-handler)
   (GET "/ISeqResponse" [] {:status 200 :body '("a" "good" "response")})
   (GET "/InputStreamResponse" [] {:status 200 :body (io/input-stream (.getBytes "afineresponse"))})
+  (GET "/FileResponse" [] {:status 200 :body (io/file "./test/netty/ring/response.txt")})
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]

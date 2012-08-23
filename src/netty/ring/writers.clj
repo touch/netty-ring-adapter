@@ -2,9 +2,10 @@
   (:require [clojure.java.io :as io])
   (:import [org.jboss.netty.buffer ChannelBuffers ChannelBuffer]
            [org.jboss.netty.channel Channel ChannelFutureListener ChannelFuture]
-           [org.jboss.netty.handler.codec.http HttpResponse]
-           [org.jboss.netty.handler.stream ChunkedStream]
-           [java.io InputStream File]
+           [org.jboss.netty.handler.codec.http HttpResponse HttpHeaders HttpHeaders$Names]
+           [org.jboss.netty.handler.stream ChunkedStream ChunkedFile]
+           [java.io InputStream File RandomAccessFile]
+           [java.net URLConnection]
            [java.nio.charset Charset]
            [clojure.lang ISeq]))
 
@@ -41,3 +42,15 @@
     (doto (.write channel (ChunkedStream. body))
       add-close-listener
       (add-close-stream-listener body))))
+
+(extend-type File
+  ResponseWriter
+  (write [body ^HttpResponse response ^Channel channel]
+    (let [file (RandomAccessFile. body "r")
+          region (ChunkedFile. file)
+          content-type (URLConnection/guessContentTypeFromName (.getName body))]
+      (.setHeader response HttpHeaders$Names/CONTENT_TYPE content-type)
+      (HttpHeaders/setContentLength response (.length file))
+
+      (.write channel response)
+      (add-close-listener (.write channel region)))))
