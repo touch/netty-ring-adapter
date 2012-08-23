@@ -1,7 +1,8 @@
 (ns netty.ring.adapter
   (:require [clojure.string :as s]
             [netty.ring.request :as request]
-            [netty.ring.response :as response])
+            [netty.ring.response :as response]
+            [netty.ring.writers :as writers])
   (:import [java.util.concurrent Executors]
            [java.net InetSocketAddress]
            org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
@@ -17,26 +18,27 @@
             HttpResponseEncoder
             HttpChunkAggregator]))
 
-(defn- create-handler [handler]
+(defn- create-handler [handler options]
   (proxy [SimpleChannelUpstreamHandler] []
     (messageReceived [context event]
-      (-> (request/create-ring-request context (.getMessage event))
-        handler
-        (response/write-ring-response context)))
+      (binding [writers/*zero-copy* (options :zero-copy false)]
+        (-> (request/create-ring-request context (.getMessage event))
+          handler
+          (response/write-ring-response context))))
     (exceptionCaught [context evt]
       (-> evt .getChannel .close))))
 
-(defn- create-pipeline [handler]
+(defn- create-pipeline [handler options]
   (doto (Channels/pipeline)
     (.addLast "decoder" (HttpRequestDecoder.))
     (.addLast "chunkedAggregator" (HttpChunkAggregator. 1048576))
     (.addLast "encoder" (HttpResponseEncoder.))
     (.addLast "chunkedWriter" (ChunkedWriteHandler.))
-    (.addLast "handler" (create-handler handler))))
+    (.addLast "handler" (create-handler handler options))))
 
-(defn- pipeline-factory [handler]
+(defn- pipeline-factory [handler options]
   (reify ChannelPipelineFactory
-    (getPipeline [this] (create-pipeline handler))))
+    (getPipeline [this] (create-pipeline handler options))))
 
 (defn- create-bootstrap [channel-factory pipeline]
   (let [bootstrap (ServerBootstrap. channel-factory)]
@@ -47,7 +49,7 @@
 
 (defn start-server [handler options]
   (let [channel-factory (NioServerSocketChannelFactory.)
-        pipeline (pipeline-factory handler)
+        pipeline (pipeline-factory handler options)
         bootstrap (create-bootstrap channel-factory pipeline)
         bind-address (InetSocketAddress. (options :port 8080))
         channel (.bind bootstrap bind-address)]

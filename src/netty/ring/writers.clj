@@ -1,7 +1,7 @@
 (ns netty.ring.writers
   (:require [clojure.java.io :as io])
   (:import [org.jboss.netty.buffer ChannelBuffers ChannelBuffer]
-           [org.jboss.netty.channel Channel ChannelFutureListener ChannelFuture]
+           [org.jboss.netty.channel Channel ChannelFutureListener ChannelFuture DefaultFileRegion]
            [org.jboss.netty.handler.codec.http HttpResponse HttpHeaders HttpHeaders$Names]
            [org.jboss.netty.handler.stream ChunkedStream ChunkedFile]
            [java.io InputStream File RandomAccessFile]
@@ -43,14 +43,22 @@
       add-close-listener
       (add-close-stream-listener body))))
 
+(def ^:dynamic *zero-copy* false)
+
+(defn file-body [file]
+  (let [random-access-file (RandomAccessFile. file "r")]
+    (if *zero-copy*
+      (DefaultFileRegion. (.getChannel random-access-file) 0 (.length file) true)
+      (ChunkedFile. random-access-file))))
+
 (extend-type File
   ResponseWriter
   (write [body ^HttpResponse response ^Channel channel]
-    (let [file (RandomAccessFile. body "r")
-          region (ChunkedFile. file)
+    (let [response-body (file-body body)
           content-type (URLConnection/guessContentTypeFromName (.getName body))]
       (.setHeader response HttpHeaders$Names/CONTENT_TYPE content-type)
-      (HttpHeaders/setContentLength response (.length file))
+      (.setHeader response "Zero-Copy" *zero-copy*)
+      (HttpHeaders/setContentLength response (.length body))
 
       (.write channel response)
-      (add-close-listener (.write channel region)))))
+      (add-close-listener (.write channel response-body)))))

@@ -56,8 +56,7 @@
 (deftest response-body-types
   (is (= "agoodresponse" (get "/ISeqResponse")))
   (is (= "afineresponse" (get "/InputStreamResponse")))
-  (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse")))
-  (println "zero copy file body"))
+  (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse"))))
 
 (deftest bad-responses
   (println "empty response")
