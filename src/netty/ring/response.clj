@@ -14,7 +14,7 @@
   (doseq [[key values] headers]
     (.setHeader response key values)))
 
-(defn write-ring-response [ring-response ^ChannelHandlerContext context]
+(defn write-ring-response [^ChannelHandlerContext context ring-response]
   (let [status (HttpResponseStatus/valueOf (ring-response :status 200))
         response (DefaultHttpResponse. HttpVersion/HTTP_1_1 status)]
     (set-headers response (:headers ring-response))
