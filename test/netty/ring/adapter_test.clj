@@ -59,7 +59,7 @@
   (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse"))))
 
 (deftest bad-responses
-  (println "empty response")
+  (is (= "" (get "/EmptyResponse")))
   (println "exception thrown during handle"))
 
 (defn header-handler [request]
@@ -83,6 +83,7 @@
   (GET "/ISeqResponse" [] {:status 200 :body '("a" "good" "response")})
   (GET "/InputStreamResponse" [] {:status 200 :body (io/input-stream (.getBytes "afineresponse"))})
   (GET "/FileResponse" [] {:status 200 :body (io/file "./test/netty/ring/response.txt")})
+  (GET "/EmptyResponse" [] {:status 200 :body nil})
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]

@@ -18,6 +18,10 @@
   (let [listener (reify ChannelFutureListener (operationComplete [_ _] (.close stream)))]
     (.addListener future listener)))
 
+(defn- write-response [^HttpResponse response ^Channel channel]
+  (-> (.write channel response)
+    add-close-listener))
+
 (defprotocol ResponseWriter
   "Provides the best way to write a response for the give ring response body"
   (write [body ^HttpResponse response ^Channel channel]))
@@ -27,8 +31,7 @@
   (write [body ^HttpResponse response ^Channel channel]
     (let [buffer (ChannelBuffers/copiedBuffer body charset)]
       (.setContent response buffer)
-      (doto (.write channel response)
-        add-close-listener))))
+      (write-response response channel))))
 
 (extend-type ISeq
   ResponseWriter
@@ -62,3 +65,8 @@
 
       (.write channel response)
       (add-close-listener (.write channel response-body)))))
+
+(extend-type nil
+  ResponseWriter
+  (write [body ^HttpResponse response ^Channel channel]
+    (write-response response channel)))
