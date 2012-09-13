@@ -1,3 +1,6 @@
+## 0.2.2 (2012-09-12)
+* Updated Netty to 3.5.7.Final
+
 ## 0.2.1 (2012-08-25)
 
 * Updated Netty to 3.5.5.Final
