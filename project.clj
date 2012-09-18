@@ -1,7 +1,7 @@
 (defproject netty-ring-adapter "0.2.2"
   :description "Ring server built with Netty (https://netty.io/)"
   :url "http://github.com/aesterline/netty-ring-adapter"
-  :license {:name "Eclipse Public License"
+  :license {:name "Eclipse Public License 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [io.netty/netty "3.5.7.Final"]]
