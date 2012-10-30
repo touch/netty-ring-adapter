@@ -4,6 +4,6 @@
   :license {:name "Eclipse Public License 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [io.netty/netty "3.5.7.Final"]]
+                 [io.netty/netty "3.5.9.Final"]]
   :profiles {:dev {:dependencies [[clj-http "0.5.2"]
                                   [compojure "1.1.1"]]}})
