@@ -1,3 +1,6 @@
+## 0.2.4 (2012-10-29)
+* Updated Netty to 3.5.9.Final
+
 ## 0.2.3 (2012-09-18)
 * Updated license name
 
