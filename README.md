@@ -65,6 +65,12 @@ To run the tests:
     $ lein deps
     $ lein test
 
+## TODO
+
+* Support HTTP Keep-Alive? Not sure if this already works, but it should.
+* Add metrics. Seems like it would be good to add JMX metrics to the various queues and requests/responses.
+* Create a lein plugin for the netty-ring-adapter.
+
 
 ## License
 
