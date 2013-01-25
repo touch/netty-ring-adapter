@@ -11,18 +11,17 @@ adapter that should work just like reference ring adapter.
 [Clojars](http://clojars.org/netty-ring-adapter):
 
 ```clojure
-[netty-ring-adapter "0.2.5"]
+[netty-ring-adapter "0.3.0"]
 ```
 
 Previous versions available as
 
 ```clojure
+[netty-ring-adapter "0.2.5"]
 [netty-ring-adapter "0.2.4"]
 [netty-ring-adapter "0.2.3"]
 [netty-ring-adapter "0.2.2"]
 [netty-ring-adapter "0.2.1"]
-[netty-ring-adapter "0.2.0"]
-[netty-ring-adapter "0.1.0"]
 ```
 
 ## Usage
