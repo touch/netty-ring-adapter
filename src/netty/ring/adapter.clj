@@ -8,6 +8,7 @@
            [org.jboss.netty.bootstrap ServerBootstrap]
            [org.jboss.netty.handler.stream ChunkedWriteHandler]
            [org.jboss.netty.handler.execution ExecutionHandler OrderedMemoryAwareThreadPoolExecutor]
+           [org.jboss.netty.handler.logging LoggingHandler]
            [org.jboss.netty.channel
             ChannelHandlerContext
             Channels
@@ -24,6 +25,7 @@
 (def default-options
   {:port 8080
    :zero-copy false
+   :debug false
    :channel-options {"child.tcpNoDelay" true "child.keepAlive" true "reuseAddress" true}
    :max-http-chunk-length 1048576
    :number-of-handler-threads 16
@@ -44,13 +46,16 @@
 (defn- pipeline-factory [handler execution-handler options]
   (reify ChannelPipelineFactory
     (getPipeline [this]
-      (doto (Channels/pipeline)
-        (.addLast "decoder" (HttpRequestDecoder.))
-        (.addLast "chunkedAggregator" (HttpChunkAggregator. (:max-http-chunk-length options)))
-        (.addLast "encoder" (HttpResponseEncoder.))
-        (.addLast "chunkedWriter" (ChunkedWriteHandler.))
-        (.addLast "execution" execution-handler)
-        (.addLast "handler" (handler))))))
+      (let [pipeline (Channels/pipeline)]
+        (when (:debug options) (.addLast pipeline "logger" (LoggingHandler.)))
+
+        (doto pipeline
+          (.addLast "decoder" (HttpRequestDecoder.))
+          (.addLast "chunkedAggregator" (HttpChunkAggregator. (:max-http-chunk-length options)))
+          (.addLast "encoder" (HttpResponseEncoder.))
+          (.addLast "chunkedWriter" (ChunkedWriteHandler.))
+          (.addLast "execution" execution-handler)
+          (.addLast "handler" (handler)))))))
 
 (defn- create-bootstrap [channel-factory pipeline options]
   (doto (ServerBootstrap. channel-factory)
