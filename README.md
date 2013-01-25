@@ -44,8 +44,16 @@ Previous versions available as
 The server currently supports the following options when starting the server.
 
 ```clj
-{ :port 8080        ;; The port in which the server will be listening for requests
-  :zero-copy true } ;; Should the server send file response bodies with Netty's FileRegion functionality
+{ :port 8080                     ;; The port in which the server will be listening for requests
+  :zero-copy true                ;; Should the server send file response bodies with Netty's FileRegion functionality
+  :channel-options               ;; Channel options passed to the ServerBootstrap.setOptions
+    { "child.tcpNoDelay" true}
+  :max-http-chunk-length 1048576 ;; The maximum length of the aggregated content
+  :number-of-handler-threads 16  ;; The number of threads that will be used to handle requests.
+                                 ;; These threads are used to allow the handler function to work without blocking an I/O
+                                 ;; worker thread.
+  :max-channel-memory-size       ;; the maximum total size of the queued events per channel
+  :max-total-memory-size         ;; the maximum total size of the queued events
 ```
 
 Using `:zero-copy` may not work in all cases depending on your operating system and JVM version. Please see
@@ -55,8 +63,8 @@ Using `:zero-copy` may not work in all cases depending on your operating system 
 
 To run the tests:
 
-    $ lein2 deps
-    $ lein2 test
+    $ lein deps
+    $ lein test
 
 
 ## License

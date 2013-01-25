@@ -59,8 +59,7 @@
   (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse"))))
 
 (deftest bad-responses
-  (is (= "" (get "/EmptyResponse")))
-  (println "exception thrown during handle"))
+  (is (= "" (get "/EmptyResponse"))))
 
 (defn header-handler [request]
   (if (.contains (:uri request) "single")
