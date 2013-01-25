@@ -20,6 +20,8 @@
             HttpResponseEncoder
             HttpChunkAggregator]))
 
+(def default-channel-options {"child.tcpNoDelay" true "child.keepAlive" true "reuseAddress" true})
+
 (defn- create-handler-factory [handler options]
   #(proxy [SimpleChannelUpstreamHandler] []
      (messageReceived [context ^MessageEvent event]
@@ -41,16 +43,18 @@
         (.addLast "chunkedWriter" (ChunkedWriteHandler.))
         (.addLast "handler" (handler))))))
 
-(defn- create-bootstrap [channel-factory pipeline]
+(defn- create-bootstrap [channel-factory pipeline options]
   (doto (ServerBootstrap. channel-factory)
     (.setPipelineFactory pipeline)
-    (.setOption "child.tcpNoDelay" true)
-    (.setOption "child.keepAlive" true)))
+    (.setOptions options)))
 
 (defn start-server [handler options]
   (let [channel-factory (NioServerSocketChannelFactory.)
         pipeline (pipeline-factory (create-handler-factory handler options))
-        ^ServerBootstrap bootstrap (create-bootstrap channel-factory pipeline)
+
+        channel-options (merge default-channel-options (:channel-options options))
+
+        ^ServerBootstrap bootstrap (create-bootstrap channel-factory pipeline channel-options)
         bind-address (InetSocketAddress. (options :port 8080))
         ^Channel channel (.bind bootstrap bind-address)]
     (fn []
