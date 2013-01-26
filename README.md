@@ -11,17 +11,17 @@ adapter that should work just like reference ring adapter.
 [Clojars](http://clojars.org/netty-ring-adapter):
 
 ```clojure
-[netty-ring-adapter "0.3.0"]
+[netty-ring-adapter "0.3.2"]
 ```
 
 Previous versions available as
 
 ```clojure
+[netty-ring-adapter "0.3.0"]
 [netty-ring-adapter "0.2.5"]
 [netty-ring-adapter "0.2.4"]
 [netty-ring-adapter "0.2.3"]
 [netty-ring-adapter "0.2.2"]
-[netty-ring-adapter "0.2.1"]
 ```
 
 ## Usage
@@ -53,6 +53,8 @@ The server currently supports the following options when starting the server.
                                     ;; worker thread.
   :max-channel-memory-size 1048576  ;; the maximum total size of the queued events per channel
   :max-total-memory-size 1048576    ;; the maximum total size of the queued events
+  :debug :slf4j                     ;; turns on debugging using the slf4j as a logging framework.
+                                    ;; debugging options include (:commons :jboss :log4j :slf4j :jdk)
 ```
 
 Using `:zero-copy` may not work in all cases depending on your operating system and JVM version. Please see

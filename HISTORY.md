@@ -1,3 +1,7 @@
+## 0.3.2 (2013-01-25)
+* Added the ability to turn on debug logging (Netty logging).
+* Debugging frameworks supported (:commons :jboss :log4j :slf4j :jdk)
+
 ## 0.3.0 (2013-01-24)
 * Updated Netty to 3.6.2.Final
 * All handler processing is now done in a different thread from the IO worker threads.
