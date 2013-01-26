@@ -9,23 +9,13 @@
            [org.jboss.netty.handler.stream ChunkedWriteHandler]
            [org.jboss.netty.handler.execution ExecutionHandler OrderedMemoryAwareThreadPoolExecutor]
            [org.jboss.netty.handler.logging LoggingHandler]
-           [org.jboss.netty.channel
-            ChannelHandlerContext
-            Channels
-            SimpleChannelUpstreamHandler
-            ChannelPipelineFactory
-            ExceptionEvent
-            MessageEvent
-            Channel]
-           [org.jboss.netty.handler.codec.http
-            HttpRequestDecoder
-            HttpResponseEncoder
-            HttpChunkAggregator]))
+           [org.jboss.netty.logging InternalLoggerFactory]
+           [org.jboss.netty.channel ChannelHandlerContext Channels SimpleChannelUpstreamHandler ChannelPipelineFactory]
+           [org.jboss.netty.handler.codec.http HttpRequestDecoder HttpResponseEncoder HttpChunkAggregator]))
 
 (def default-options
   {:port 8080
    :zero-copy false
-   :debug false
    :channel-options {"child.tcpNoDelay" true "child.keepAlive" true "reuseAddress" true}
    :max-http-chunk-length 1048576
    :number-of-handler-threads 16
@@ -34,14 +24,22 @@
 
 (defn- create-handler-factory [handler zero-copy]
   #(proxy [SimpleChannelUpstreamHandler] []
-     (messageReceived [context ^MessageEvent event]
+     (messageReceived [context event]
        (binding [writers/*zero-copy* zero-copy]
          (->> (.getMessage event)
            (request/create-ring-request context)
            handler
            (response/write-ring-response context))))
-     (exceptionCaught [context ^ExceptionEvent evt]
+     (exceptionCaught [context evt]
        (-> evt .getChannel .close))))
+
+(defn- create-logging-factory [debug-type]
+  (case debug-type
+    :commons (org.jboss.netty.logging.CommonsLoggerFactory.)
+    :jboss (org.jboss.netty.logging.JBossLoggerFactory.)
+    :log4j (org.jboss.netty.logging.Log4JLoggerFactory.)
+    :slf4j (org.jboss.netty.logging.Slf4JLoggerFactory.)
+    (org.jboss.netty.logging.JdkLoggerFactory.)))
 
 (defn- pipeline-factory [handler execution-handler options]
   (reify ChannelPipelineFactory
@@ -70,14 +68,17 @@
 (defn start-server
   ([handler] (start-server handler {}))
   ([handler user-options]
+    (when (:debug user-options)
+      (InternalLoggerFactory/setDefaultFactory (create-logging-factory (:debug user-options))))
+
     (let [options (merge default-options user-options)
           channel-factory (NioServerSocketChannelFactory.)
           handler (create-handler-factory handler (:zero-copy options))
           execution-handler (create-execution-handler options)
           pipeline (pipeline-factory handler execution-handler options)
-          ^ServerBootstrap bootstrap (create-bootstrap channel-factory pipeline (:channel-options options))
+          bootstrap (create-bootstrap channel-factory pipeline (:channel-options options))
           bind-address (InetSocketAddress. (:port options))
-          ^Channel channel (.bind bootstrap bind-address)]
+          channel (.bind bootstrap bind-address)]
       (fn []
         (.close channel)
         (.releaseExternalResources channel-factory)
