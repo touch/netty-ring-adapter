@@ -53,7 +53,7 @@ The server currently supports the following options when starting the server.
                                     ;; worker thread.
   :max-channel-memory-size 1048576  ;; the maximum total size of the queued events per channel
   :max-total-memory-size 1048576    ;; the maximum total size of the queued events
-  :debug :slf4j                     ;; turns on debugging using the slf4j as a logging framework.
+  :debug :slf4j }                   ;; turns on debugging using the slf4j as a logging framework.
                                     ;; debugging options include (:commons :jboss :log4j :slf4j :jdk)
 ```
 
@@ -72,6 +72,7 @@ To run the tests:
 * Support HTTP Keep-Alive? Not sure if this already works, but it should.
 * Add metrics. Seems like it would be good to add JMX metrics to the various queues and requests/responses.
 * Create a lein plugin for the netty-ring-adapter.
+* SSL support
 
 
 ## License
