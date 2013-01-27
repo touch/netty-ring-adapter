@@ -50,8 +50,8 @@
   (is (= (get "/headers") "localhost:8080")))
 
 (deftest response-headers
-  (is (= (:headers (client/get (str server "/responseHeaders/single")) {"foo" "bar"})))
-  (is (= (:headers (client/get (str server "/responseHeaders/multiple"))) {"foo" ["bar" "baz"]})))
+  (is (= "bar" (get-in (client/get (str server "/responseHeaders/single")) [:headers "foo"])))
+  (is (= ["bar" "baz"] (get-in (client/get (str server "/responseHeaders/multiple")) [:headers "foo"]))))
 
 (deftest response-body-types
   (is (= "agoodresponse" (get "/ISeqResponse")))
@@ -60,6 +60,10 @@
 
 (deftest bad-responses
   (is (= "" (get "/EmptyResponse"))))
+
+(deftest keep-alive
+  (client/with-connection-pool {:timeout 5 :threads 4 :insecure? false :default-per-route 10}
+    (is (= "keep-alive" (get-in (client/get (str server "/headers")) [:headers "connection"])))))
 
 (defn header-handler [request]
   (if (.contains (:uri request) "single")

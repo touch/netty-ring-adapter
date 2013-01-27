@@ -11,7 +11,7 @@
            [org.jboss.netty.handler.logging LoggingHandler]
            [org.jboss.netty.logging InternalLoggerFactory]
            [org.jboss.netty.channel ChannelHandlerContext Channels SimpleChannelUpstreamHandler ChannelPipelineFactory]
-           [org.jboss.netty.handler.codec.http HttpRequestDecoder HttpResponseEncoder HttpChunkAggregator]))
+           [org.jboss.netty.handler.codec.http HttpRequestDecoder HttpResponseEncoder HttpChunkAggregator HttpHeaders]))
 
 (def default-options
   {:port 8080
@@ -22,14 +22,21 @@
    :max-channel-memory-size 1048576
    :max-total-memory-size 1048576})
 
+(defn- add-keep-alive [http-request ring-response]
+  (if (HttpHeaders/isKeepAlive http-request)
+    (assoc-in ring-response [:headers "connection"] "keep-alive")
+    ring-response))
+
 (defn- create-handler-factory [handler zero-copy]
   #(proxy [SimpleChannelUpstreamHandler] []
      (messageReceived [context event]
        (binding [writers/*zero-copy* zero-copy]
-         (->> (.getMessage event)
-           (request/create-ring-request context)
-           handler
-           (response/write-ring-response context))))
+         (let [http-request (.getMessage event)]
+           (->> http-request
+             (request/create-ring-request context)
+             handler
+             (add-keep-alive http-request)
+             (response/write-ring-response context)))))
      (exceptionCaught [context evt]
        (-> evt .getChannel .close))))
 
