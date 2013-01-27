@@ -34,7 +34,7 @@
   ResponseWriter
   (write [body ^HttpResponse response ^Channel channel]
     (let [buffer (ChannelBuffers/copiedBuffer body charset)]
-      (HttpHeaders/setContentLength response (count body))
+      (HttpHeaders/setContentLength response (.readableBytes buffer))
       (.setContent response buffer)
       (write-response response channel))))
 
