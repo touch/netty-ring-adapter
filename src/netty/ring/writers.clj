@@ -15,12 +15,14 @@
   (= "keep-alive" (HttpHeaders/getHeader response "connection")))
 
 (defn- add-close-listener [^ChannelFuture future ^HttpResponse response]
-  (when-not (keep-alive? response)
+  (if (keep-alive? response)
+    (.addListener future ChannelFutureListener/CLOSE_ON_FAILURE)
     (.addListener future ChannelFutureListener/CLOSE)))
 
 (defn- add-close-stream-listener [^ChannelFuture future ^InputStream stream]
   (let [listener (reify ChannelFutureListener (operationComplete [_ _] (.close stream)))]
-    (.addListener future listener)))
+    (.addListener future listener)
+    (.addListener future ChannelFutureListener/CLOSE)))
 
 (defn- write-response [^HttpResponse response ^Channel channel]
   (-> (.write channel response)
@@ -47,8 +49,7 @@
   ResponseWriter
   (write [body ^HttpResponse response ^Channel channel]
     (.write channel response)
-    (doto (.write channel (ChunkedStream. body))
-      (add-close-listener response)
+    (-> (.write channel (ChunkedStream. body))
       (add-close-stream-listener body))))
 
 (def ^:dynamic *zero-copy* false)
@@ -74,4 +75,5 @@
 (extend-type nil
   ResponseWriter
   (write [body ^HttpResponse response ^Channel channel]
+    (HttpHeaders/setContentLength response 0)
     (write-response response channel)))

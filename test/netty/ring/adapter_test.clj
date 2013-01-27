@@ -63,7 +63,11 @@
 
 (deftest keep-alive
   (client/with-connection-pool {:timeout 5 :threads 4 :insecure? false :default-per-route 10}
-    (is (= "keep-alive" (get-in (client/get (str server "/headers")) [:headers "connection"])))))
+    (is (= "agoodresponse" (get "/ISeqResponse")))
+    (is (= "keep-alive" (get-in (client/get (str server "/headers")) [:headers "connection"])))
+    (is (= "afineresponse" (get "/InputStreamResponse")))
+    (is (= "" (get "/EmptyResponse")))
+    (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse")))))
 
 (defn header-handler [request]
   (if (.contains (:uri request) "single")
