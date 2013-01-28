@@ -1,3 +1,6 @@
+## 0.4.0 (2013-01-27)
+* Added support for HTTP keep-alive
+
 ## 0.3.2 (2013-01-25)
 * Added the ability to turn on debug logging (Netty logging).
 * Debugging frameworks supported (:commons :jboss :log4j :slf4j :jdk)

@@ -11,12 +11,13 @@ adapter that should work just like reference ring adapter.
 [Clojars](http://clojars.org/netty-ring-adapter):
 
 ```clojure
-[netty-ring-adapter "0.3.2"]
+[netty-ring-adapter "0.4.0"]
 ```
 
 Previous versions available as
 
 ```clojure
+[netty-ring-adapter "0.3.2"]
 [netty-ring-adapter "0.3.0"]
 [netty-ring-adapter "0.2.5"]
 [netty-ring-adapter "0.2.4"]
@@ -69,7 +70,7 @@ To run the tests:
 
 ## TODO
 
-* Support HTTP Keep-Alive? Not sure if this already works, but it should.
+* ~~Support HTTP Keep-Alive? Not sure if this already works, but it should.~~
 * Add metrics. Seems like it would be good to add JMX metrics to the various queues and requests/responses.
 * Create a lein plugin for the netty-ring-adapter.
 * SSL support
