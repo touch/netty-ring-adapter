@@ -1,3 +1,6 @@
+## 0.4.1 (2013-01-28)
+* Added error logging when exceptions are thrown during processing.
+
 ## 0.4.0 (2013-01-27)
 * Added support for HTTP keep-alive
 
