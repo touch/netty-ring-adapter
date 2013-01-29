@@ -1,7 +1,8 @@
 (ns netty.ring.adapter
   (:require [netty.ring.request :as request]
             [netty.ring.response :as response]
-            [netty.ring.writers :as writers])
+            [netty.ring.writers :as writers]
+            [clojure.tools.logging :as log])
   (:import [java.util.concurrent Executors]
            [java.net InetSocketAddress]
            [org.jboss.netty.channel.socket.nio NioServerSocketChannelFactory]
@@ -38,7 +39,8 @@
              (add-keep-alive http-request)
              (response/write-ring-response context)))))
      (exceptionCaught [context evt]
-       (-> evt .getChannel .close))))
+       (log/error (.getCause evt) "Error occurred in I/O thread")
+       (response/write-ring-response context {:status 500}))))
 
 (defn- create-logging-factory [debug-type]
   (case debug-type

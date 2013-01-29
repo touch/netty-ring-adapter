@@ -59,7 +59,8 @@
   (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse"))))
 
 (deftest bad-responses
-  (is (= "" (get "/EmptyResponse"))))
+  (is (= "" (get "/EmptyResponse")))
+  (is (= 500 (:status (client/get (str server "/Exception") {:throw-exceptions false})))))
 
 (deftest keep-alive
   (client/with-connection-pool {:timeout 5 :threads 4 :insecure? false :default-per-route 10}
@@ -73,6 +74,9 @@
   (if (.contains (:uri request) "single")
     {:status 200 :headers {"foo" "bar"}}
     {:status 200 :headers {"foo" ["bar" "baz"]}}))
+
+(defn exception-handler [request]
+  (throw (Exception. "Bad things happen")))
 
 (defroutes test-routes
   (GET "/" [] "Hello World")
@@ -91,6 +95,7 @@
   (GET "/InputStreamResponse" [] {:status 200 :body (io/input-stream (.getBytes "afineresponse"))})
   (GET "/FileResponse" [] {:status 200 :body (io/file "./test/netty/ring/response.txt")})
   (GET "/EmptyResponse" [] {:status 200 :body nil})
+  (GET "/Exception" [] exception-handler)
   (route/not-found "Unknown"))
 
 (defn server-fixture [f]
