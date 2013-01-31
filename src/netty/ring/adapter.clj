@@ -40,7 +40,8 @@
              (response/write-ring-response context)))))
      (exceptionCaught [context evt]
        (log/error (.getCause evt) "Error occurred in I/O thread")
-       (response/write-ring-response context {:status 500}))))
+       (when (-> context .getChannel .isOpen)
+         (response/write-ring-response context {:status 500})))))
 
 (defn- create-logging-factory [debug-type]
   (case debug-type
