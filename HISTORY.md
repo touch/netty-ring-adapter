@@ -1,3 +1,6 @@
+## 0.4.2 (2013-01-30)
+* Fixed a defect that caused the server to consume CPU cycles when a client closes the socket before a response is sent.
+
 ## 0.4.1 (2013-01-28)
 * Added error logging when exceptions are thrown during processing.
 
