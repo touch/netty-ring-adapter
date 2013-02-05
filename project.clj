@@ -7,5 +7,5 @@
                  [org.clojure/tools.logging "0.2.3"]]
   :profiles {:shared {:dependencies [[clj-http "0.5.2"] [compojure "1.1.1"]]}
              :dev [:shared {:dependencies [[org.clojure/clojure "1.4.0"]]}]
-             :1.5 [:shared {:dependencies [[org.clojure/clojure "1.5.0-RC1"]]}]}
+             :1.5 [:shared {:dependencies [[org.clojure/clojure "1.5.0-RC6"]]}]}
   :jvm-opts ["-Djava.util.logging.config.file=logging.properties"])
