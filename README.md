@@ -3,7 +3,7 @@
 netty-ring-adapter is a ring server built with [Netty](https://netty.io/). netty-ring-adapter is designed to be a drop in ring
 adapter that should work just like reference ring adapter.
 
-[![Build Status](https://secure.travis-ci.org/aesterline/netty-ring-adapter.png)](http://travis-ci.org/aesterline/netty-ring-adapter)
+[![Build Status](https://secure.travis-ci.org/RallySoftware/netty-ring-adapter.png)](http://travis-ci.org/RallySoftware/netty-ring-adapter)
 
 ## Installation
 
