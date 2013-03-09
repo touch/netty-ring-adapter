@@ -1,3 +1,8 @@
+## 0.4.3 (2013-03-09)
+* Updated Netty to 3.6.3-Final
+* Updated org.clojure/tools.logging to 0.2.6
+* Started testing with the final release of Clojure 1.5
+
 ## 0.4.2 (2013-01-30)
 * Fixed a defect that caused the server to consume CPU cycles when a client closes the socket before a response is sent.
 
