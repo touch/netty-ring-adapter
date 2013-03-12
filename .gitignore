@@ -11,3 +11,4 @@ pom.xml
 *.ipr
 *.iml
 *.iws
+.lein-repl-history

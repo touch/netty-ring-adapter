@@ -83,5 +83,3 @@
      :content-length (content-length http-request)
      :character-encoding (character-encoding http-request)
      :headers (headers http-request)}))
-
-
