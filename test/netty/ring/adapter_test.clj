@@ -5,7 +5,8 @@
         compojure.core)
   (:require [clj-http.client :as client]
             [compojure.route :as route]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [ring.util.response :as response]))
 
 (def ^:const server "http://localhost:8080")
 (declare get post put make-request)
@@ -56,7 +57,8 @@
 (deftest response-body-types
   (is (= "agoodresponse" (get "/ISeqResponse")))
   (is (= "afineresponse" (get "/InputStreamResponse")))
-  (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse"))))
+  (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse/response.txt")))
+  (is (= (slurp "./test/netty/ring/response.json") (get "/FileResponse/response.json"))))
 
 (deftest bad-responses
   (is (= "" (get "/EmptyResponse")))
@@ -68,7 +70,7 @@
     (is (= "keep-alive" (get-in (client/get (str server "/headers")) [:headers "connection"])))
     (is (= "afineresponse" (get "/InputStreamResponse")))
     (is (= "" (get "/EmptyResponse")))
-    (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse")))))
+    (is (= (slurp "./test/netty/ring/response.txt") (get "/FileResponse/response.txt")))))
 
 (defn header-handler [request]
   (if (.contains (:uri request) "single")
@@ -93,7 +95,7 @@
   (GET "/responseHeaders/*" [] header-handler)
   (GET "/ISeqResponse" [] {:status 200 :body '("a" "good" "response")})
   (GET "/InputStreamResponse" [] {:status 200 :body (io/input-stream (.getBytes "afineresponse"))})
-  (GET "/FileResponse" [] {:status 200 :body (io/file "./test/netty/ring/response.txt")})
+  (GET "/FileResponse/:current-file" [current-file] (response/file-response (str "./test/netty/ring/" current-file)))
   (GET "/EmptyResponse" [] {:status 200 :body nil})
   (GET "/Exception" [] exception-handler)
   (route/not-found "Unknown"))

@@ -63,9 +63,7 @@
 (extend-type File
   ResponseWriter
   (write [body ^HttpResponse response ^Channel channel]
-    (let [response-body (file-body body)
-          content-type (URLConnection/guessContentTypeFromName (.getName body))]
-      (.setHeader response HttpHeaders$Names/CONTENT_TYPE content-type)
+    (let [response-body (file-body body)]
       (.setHeader response "Zero-Copy" *zero-copy*)
       (HttpHeaders/setContentLength response (.length body))
 
