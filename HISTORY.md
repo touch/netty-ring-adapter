@@ -1,3 +1,7 @@
+## 0.4.4 (2013-03-20)
+* Fixed a bug with file content type detection
+* No longer trying to detect file content types.
+
 ## 0.4.3 (2013-03-09)
 * Updated Netty to 3.6.3-Final
 * Updated org.clojure/tools.logging to 0.2.6
