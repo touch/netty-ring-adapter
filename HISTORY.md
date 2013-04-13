@@ -1,3 +1,6 @@
+## 0.4.5 (2013-04-12)
+* Updated Netty to 3.6.5-Final
+
 ## 0.4.4 (2013-03-20)
 * Fixed a bug with file content type detection
 * No longer trying to detect file content types.
