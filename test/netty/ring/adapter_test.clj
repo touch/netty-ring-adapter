@@ -50,6 +50,10 @@
 (deftest headers
   (is (= (get "/headers") "localhost:8080")))
 
+(deftest request-body
+  (is (= "Foo Bar" (make-request :post "/requestbody" {:body "Foo Bar"})))
+  (is (= (slurp "./test/netty/ring/response.txt") (make-request :post "/requestbody" {:body (io/input-stream "./test/netty/ring/response.txt") :length -1}))))
+
 (deftest response-headers
   (is (= "bar" (get-in (client/get (str server "/responseHeaders/single")) [:headers "foo"])))
   (is (= ["bar" "baz"] (get-in (client/get (str server "/responseHeaders/multiple")) [:headers "foo"]))))
@@ -92,6 +96,7 @@
   (GET "/contentType" [] #(:content-type %))
   (POST "/characterEncoding" [] #(:character-encoding %))
   (GET "/headers" [] #((:headers %) "host"))
+  (POST "/requestbody" [] #(slurp (:body %)))
   (GET "/responseHeaders/*" [] header-handler)
   (GET "/ISeqResponse" [] {:status 200 :body '("a" "good" "response")})
   (GET "/InputStreamResponse" [] {:status 200 :body (io/input-stream (.getBytes "afineresponse"))})
