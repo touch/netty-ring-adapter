@@ -1,4 +1,4 @@
-(defproject netty-ring-adapter "0.4.5"
+(defproject netty-ring-adapter "0.4.6"
   :description "Ring server built with Netty (https://netty.io/)"
   :url "http://github.com/RallySoftware/netty-ring-adapter"
   :license {:name "Eclipse Public License 1.0"

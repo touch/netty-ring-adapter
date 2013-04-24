@@ -1,3 +1,6 @@
+## 0.4.6 (2013-04-23)
+* Added a default backlog setting of 200
+
 ## 0.4.5 (2013-04-12)
 * Updated Netty to 3.6.5-Final
 
