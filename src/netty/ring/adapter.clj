@@ -17,7 +17,7 @@
 (def default-options
   {:port 8080
    :zero-copy false
-   :channel-options {"child.tcpNoDelay" true "child.keepAlive" true "reuseAddress" true}
+   :channel-options {"child.tcpNoDelay" true "child.keepAlive" true "reuseAddress" true "backlog" 200}
    :max-http-chunk-length 1048576
    :number-of-handler-threads 16
    :max-channel-memory-size 1048576
