@@ -9,7 +9,20 @@
            [java.nio.charset Charset]
            [clojure.lang ISeq]))
 
-(def charset (Charset/defaultCharset))
+(def default-charset (Charset/forName "UTF-8"))
+
+(def charset-pattern
+  "Regex to extract the charset from a content-type header.
+   See: http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7"
+  #";\s*charset=\"?([^\s;\"]+)\"?")
+
+(defn ^Charset get-charset
+  "Extracts the charset from the content-type header, if present.
+   Returns nil if the charset cannot be discovered."
+  [^HttpResponse response]
+  (if-let [content-type (.getHeader response "Content-Type")]
+    (if-let [[_ charset] (re-find charset-pattern content-type)]
+      (Charset/forName charset))))
 
 (defn- keep-alive? [^HttpResponse response]
   (= "keep-alive" (HttpHeaders/getHeader response "connection")))
@@ -35,7 +48,8 @@
 (extend-type String
   ResponseWriter
   (write [body ^HttpResponse response ^Channel channel]
-    (let [buffer (ChannelBuffers/copiedBuffer body charset)]
+    (let [charset (or (get-charset response) default-charset)
+          buffer (ChannelBuffers/copiedBuffer body charset)]
       (HttpHeaders/setContentLength response (.readableBytes buffer))
       (.setContent response buffer)
       (write-response response channel))))
