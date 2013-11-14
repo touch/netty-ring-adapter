@@ -31,8 +31,7 @@
 
 (deftest content-type
   (is (nil? (request/content-type (netty-request))))
-  (is (= "application/json" (request/content-type (doto (netty-request) (add-content-type "application/json")))))
-  (is (= "multipart/mixed" (request/content-type (doto (netty-request) (add-content-type "multipart/mixed; boundary=frontier"))))))
+  (is (= "application/json" (request/content-type (doto (netty-request) (add-content-type "application/json"))))))
 
 (deftest character-encoding
   (is (nil? (request/character-encoding (netty-request))))
